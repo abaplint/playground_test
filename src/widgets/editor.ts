@@ -1,22 +1,27 @@
 import * as monaco from 'monaco-editor';
 import {Message} from '@phosphor/messaging';
 import {Widget} from '@phosphor/widgets';
+import {FileSystem, IFile} from '../filesystem';
 
 export class EditorWidget extends Widget {
   private editor: monaco.editor.IStandaloneCodeEditor | undefined = undefined;
+  private file: IFile;
+//  private fileSystem: FileSystem;
 
   static createNode(): HTMLElement {
     let node = document.createElement('div');
     return node;
   }
 
-  constructor() {
+  constructor(file: IFile, _fileSystem: FileSystem) {
     super({ node: EditorWidget.createNode() });
     this.setFlag(Widget.Flag.DisallowLayout);
     this.addClass('editor');
-    this.title.label = "zfoobar.prog.abap";
+    this.title.label = file.filename;
     this.title.closable = true;
     this.title.caption = this.title.label;
+    this.file = file;
+//    this.fileSystem = fileSystem;
   }
 
   get inputNode(): HTMLInputElement {
@@ -38,10 +43,12 @@ export class EditorWidget extends Widget {
   protected onAfterAttach() {
     if (this.editor === undefined) {
       this.editor = monaco.editor.create(this.node, {
-        value: [
-          'WRITE \'hello world\'.'
-        ].join('\n'),
-        language: 'abap'
+        value: this.file.contents,
+        language: 'abap',
+        glyphMargin: true,
+        lightbulb: {
+          enabled: true
+        }
       });
     }
   }

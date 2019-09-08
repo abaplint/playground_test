@@ -1,26 +1,41 @@
-import 'es6-promise/auto';  // polyfill Promise on IE
 import {CommandRegistry} from '@phosphor/commands';
-import {BoxPanel, ContextMenu, DockPanel, Menu, MenuBar, Widget} from '@phosphor/widgets';
+import {BoxPanel, DockPanel, Menu, MenuBar, Widget} from '@phosphor/widgets';
 import '../style/index.css';
+import * as monaco from 'monaco-editor';
 import {EditorWidget, TreeWidget, ProblemsWidget} from './widgets/';
+import {FileSystem} from './filesystem';
+
 
 const commands = new CommandRegistry();
 
 function createMenu(): Menu {
   let root = new Menu({ commands });
   root.addItem({ command: 'example:copy' });
-  root.addItem({ command: 'example:close' });
   return root;
+}
+
+function setupMonaco() {
+  monaco.languages.register({id: "abap"});
+}
+
+function setupFiles() {
+  const files = new FileSystem();
+  files.addFile("zfoobar.prog.abap", "WRITE 'hello world'.");
+  files.addFile("abaplint.json", "todo");
+  return files;
 }
 
 function main(): void {
 
+  setupMonaco();
+  const fileSystem = setupFiles();
+
   commands.addCommand('example:copy', {
-    label: 'Copy File',
+    label: 'Add file',
     mnemonic: 0,
     iconClass: 'fa fa-copy',
     execute: () => {
-      console.log('Copy');
+      fileSystem.addFile("sdf", "sdf");
     }
   });
 
@@ -32,28 +47,15 @@ function main(): void {
   menu.addMenu(menu1);
   menu.id = 'menuBar';
 
-
-  let contextMenu = new ContextMenu({ commands });
-  document.addEventListener('contextmenu', (event: MouseEvent) => {
-    if (contextMenu.open(event)) {
-      event.preventDefault();
-    }
-  });
-  contextMenu.addItem({ command: 'example:copy', selector: '.content' });
-
-  document.addEventListener('keydown', (event: KeyboardEvent) => {
-    commands.processKeydownEvent(event);
-  });
-
-  let r1 = new EditorWidget();
-  let r2 = new EditorWidget();
   let dock = new DockPanel();
-  dock.addWidget(r1);
-  dock.addWidget(r2);
   dock.id = 'dock';
+  for (const f of fileSystem.getFiles()) {
+    let r1 = new EditorWidget(f, fileSystem);
+    dock.addWidget(r1);
+  }
   BoxPanel.setStretch(dock, 1);
 
-  let tree = new TreeWidget();
+  let tree = new TreeWidget(fileSystem);
   tree.id = "tree";
 
   let problems = new ProblemsWidget();
@@ -71,10 +73,8 @@ function main(): void {
 
 
   window.onresize = () => { main.update(); };
-
   Widget.attach(menu, document.body);
   Widget.attach(main, document.body);
 }
-
 
 window.onload = main;

@@ -1,38 +1,47 @@
 import {Message} from '@phosphor/messaging';
 import {Widget} from '@phosphor/widgets';
+import {FileSystem, IFileSubscriber} from '../filesystem';
 
-export class TreeWidget extends Widget {
+export class TreeWidget extends Widget implements IFileSubscriber {
+  private fileSystem: FileSystem;
 
   static createNode(): HTMLElement {
     let node = document.createElement('div');
-    let content = document.createElement('div');
-    let input = document.createElement('tt');
-    input.innerText = 'tree';
-    content.appendChild(input);
-    node.appendChild(content);
     return node;
   }
 
-  constructor() {
+  constructor(fileSystem: FileSystem) {
     super({ node: TreeWidget.createNode() });
     this.setFlag(Widget.Flag.DisallowLayout);
-    this.addClass('content');
-    /*
-    this.title.label = "zfoobar.prog.abap";
-    this.title.closable = true;
-    this.title.caption = this.title.label;
-    */
+    this.addClass("content");
+    fileSystem.register(this);
+    this.fileSystem = fileSystem;
   }
 
-//  get inputNode(): HTMLInputElement {
-//    return this.node.getElementsByTagName('input')[0] as HTMLInputElement;
-//  }
+  public notify(): void {
+    this.updateList();
+  }
 
   protected onActivateRequest(msg: Message): void {
-    /*
-    if (this.isAttached) {
-      this.inputNode.focus();
+  }
+
+  protected onAfterAttach() {
+    this.updateList();
+  }
+
+  private updateList() {
+    let content = document.createElement('div');
+    this.addClass("content");
+    let input = document.createElement('tt');
+    for (const f of this.fileSystem.getFiles()) {
+      input.innerHTML = input.innerHTML + "<br>" + f.filename;
     }
-    */
+    content.appendChild(input);
+
+    while (this.node.firstChild) {
+      this.node.removeChild(this.node.firstChild);
+    }
+
+    this.node.appendChild(content);
   }
 }

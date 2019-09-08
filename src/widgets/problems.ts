@@ -17,22 +17,9 @@ export class ProblemsWidget extends Widget {
     super({ node: ProblemsWidget.createNode() });
     this.setFlag(Widget.Flag.DisallowLayout);
     this.addClass('content');
-    /*
-    this.title.label = "zfoobar.prog.abap";
-    this.title.closable = true;
-    this.title.caption = this.title.label;
-    */
   }
 
-//  get inputNode(): HTMLInputElement {
-//    return this.node.getElementsByTagName('input')[0] as HTMLInputElement;
-//  }
-
   protected onActivateRequest(msg: Message): void {
-    /*
-    if (this.isAttached) {
-      this.inputNode.focus();
-    }
-    */
+
   }
 }
