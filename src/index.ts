@@ -1,8 +1,8 @@
 import 'es6-promise/auto';  // polyfill Promise on IE
 import {CommandRegistry} from '@phosphor/commands';
-import {Message} from '@phosphor/messaging';
-import {BoxPanel, CommandPalette, ContextMenu, DockPanel, Menu, MenuBar, Widget} from '@phosphor/widgets';
+import {BoxPanel, ContextMenu, DockPanel, Menu, MenuBar, Widget} from '@phosphor/widgets';
 import '../style/index.css';
+import {EditorWidget, TreeWidget, ProblemsWidget} from './widgets/';
 
 const commands = new CommandRegistry();
 
@@ -12,39 +12,6 @@ function createMenu(): Menu {
   root.addItem({ command: 'example:close' });
   return root;
 }
-
-class CustomWidget extends Widget {
-
-  static createNode(): HTMLElement {
-    let node = document.createElement('div');
-    let content = document.createElement('div');
-    let input = document.createElement('input');
-    input.placeholder = 'Placeholder...';
-    content.appendChild(input);
-    node.appendChild(content);
-    return node;
-  }
-
-  constructor() {
-    super({ node: CustomWidget.createNode() });
-    this.setFlag(Widget.Flag.DisallowLayout);
-    this.addClass('content');
-    this.title.label = "Label";
-    this.title.closable = true;
-    this.title.caption = `long description`;
-  }
-
-  get inputNode(): HTMLInputElement {
-    return this.node.getElementsByTagName('input')[0] as HTMLInputElement;
-  }
-
-  protected onActivateRequest(msg: Message): void {
-    if (this.isAttached) {
-      this.inputNode.focus();
-    }
-  }
-}
-
 
 function main(): void {
 
@@ -61,9 +28,9 @@ function main(): void {
   menu1.title.label = 'File';
   menu1.title.mnemonic = 0;
 
-  let bar = new MenuBar();
-  bar.addMenu(menu1);
-  bar.id = 'menuBar';
+  let menu = new MenuBar();
+  menu.addMenu(menu1);
+  menu.id = 'menuBar';
 
 
   let contextMenu = new ContextMenu({ commands });
@@ -78,23 +45,34 @@ function main(): void {
     commands.processKeydownEvent(event);
   });
 
-  let r1 = new CustomWidget();
+  let r1 = new EditorWidget();
+  let r2 = new EditorWidget();
   let dock = new DockPanel();
   dock.addWidget(r1);
+  dock.addWidget(r2);
   dock.id = 'dock';
   BoxPanel.setStretch(dock, 1);
 
-  let palette = new CommandPalette({ commands });
-  palette.id = 'palette';
+  let tree = new TreeWidget();
+  tree.id = "tree";
+
+  let problems = new ProblemsWidget();
+  problems.id = "problems";
+
+  let left = new BoxPanel({ direction: "top-to-bottom", spacing: 0 });
+  left.id = 'left';
+  left.addWidget(dock);
+  left.addWidget(problems);
 
   let main = new BoxPanel({ direction: 'left-to-right', spacing: 0 });
   main.id = 'main';
-  main.addWidget(palette);
-  main.addWidget(dock);
+  main.addWidget(tree);
+  main.addWidget(left);
+
 
   window.onresize = () => { main.update(); };
 
-  Widget.attach(bar, document.body);
+  Widget.attach(menu, document.body);
   Widget.attach(main, document.body);
 }
 

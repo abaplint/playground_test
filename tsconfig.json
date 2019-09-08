@@ -11,5 +11,5 @@
     "outDir": "./build",
     "types": []
   },
-  "include": ["src/*"]
+  "include": ["src/*", "src/widgets/tree.ts", "src/widgets/editor_widget.ts"]
 }

@@ -22,8 +22,13 @@ body {
   flex: 1 1 auto;
 }
 
-#palette {
-  min-width: 300px;
+#tree {
+  max-width: 300px;
+  border-right: 1px solid #DDDDDD;
+}
+
+#problems {
+  min-height: 200px;
   border-right: 1px solid #DDDDDD;
 }
 
