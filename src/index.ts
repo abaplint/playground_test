@@ -10,17 +10,24 @@ const commands = new CommandRegistry();
 
 function createMenu(): Menu {
   let root = new Menu({ commands });
-  root.addItem({ command: 'example:copy' });
+  root.addItem({ command: 'abaplint:add_file' });
   return root;
 }
 
 function setupMonaco() {
   monaco.languages.register({id: "abap"});
+// todo, add json and xml?
 }
 
 function setupFiles() {
   const files = new FileSystem();
-  files.addFile("zfoobar.prog.abap", "WRITE 'hello world'.");
+  files.addFile("zfoobar.prog.abap",
+`REPORT zfoobar.
+ WRITE 'Hello World'.
+
+LOOP AT lt_foo ASSIGNING FIELD-SYMBOL(<ls_foo>).
+  WRITE 'bar'.
+ENDLOOP.`);
   files.addFile("abaplint.json", "todo");
   return files;
 }
@@ -30,7 +37,7 @@ function main(): void {
   setupMonaco();
   const fileSystem = setupFiles();
 
-  commands.addCommand('example:copy', {
+  commands.addCommand('abaplint:add_file', {
     label: 'Add file',
     mnemonic: 0,
     iconClass: 'fa fa-copy',
