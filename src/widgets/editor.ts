@@ -45,6 +45,7 @@ export class EditorWidget extends Widget {
       this.editor = monaco.editor.create(this.node, {
         value: this.file.contents,
         language: 'abap',
+        theme: 'vs-dark',
         glyphMargin: true,
         lightbulb: {
           enabled: true
